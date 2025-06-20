@@ -16,7 +16,7 @@ import { User } from '../users/entities/user.entity';
             type: 'postgres',
             url: databaseUrl,
             entities: [User],
-            synchronize: configService.get('NODE_ENV') === 'development',
+            synchronize: true, // Mudança aqui - sempre true
             logging: configService.get('NODE_ENV') === 'development',
             ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
           };
