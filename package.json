@@ -1,0 +1,36 @@
+{
+  "name": "conectar-user-management",
+  "version": "1.0.0",
+  "description": "Sistema de gerenciamento de usuários com NestJS e ReactJS",
+  "scripts": {
+    "backend:install": "cd backend && npm install",
+    "frontend:install": "cd frontend && npm install",
+    "backend:dev": "cd backend && npm run start:dev",
+    "frontend:dev": "cd frontend && npm start",
+    "backend:build": "cd backend && npm run build",
+    "frontend:build": "cd frontend && npm run build",
+    "backend:test": "cd backend && npm run test",
+    "install:all": "npm run backend:install && npm run frontend:install",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "nestjs",
+    "reactjs",
+    "typescript",
+    "user-management",
+    "jwt",
+    "authentication"
+  ],
+  "dependencies": {
+    "@nestjs/throttler": "^6.4.0",
+    "@react-oauth/google": "^0.12.2",
+    "@tanstack/react-query": "^5.80.7",
+    "@tanstack/react-query-devtools": "^5.80.7",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "google-auth-library": "^10.1.0",
+    "passport-google-oauth20": "^2.0.0"
+  }
+}

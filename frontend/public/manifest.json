@@ -1,0 +1,38 @@
+{
+  "short_name": "User Manager",
+  "name": "Sistema de Gerenciamento de Usuários",
+  "description": "Uma aplicação moderna para gerenciar usuários com autenticação e controle de acesso baseado em papéis",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#03A86C",
+  "background_color": "#f8fafc",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["business", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "form_factor": "wide"
+    }
+  ]
+}
