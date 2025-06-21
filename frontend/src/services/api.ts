@@ -118,14 +118,12 @@ class ApiService {
   }
 
   async getInactiveUsers(): Promise<User[]> {
-    const response = await this.api.get<ApiResponse<User[]>>('/users/inactive');
-    return response.data.data!;
+    const response = await this.api.get<User[]>('/users/inactive');
+    return response.data; 
   }
 
   // Utility methods - SIMPLIFICADOS para evitar duplicação
   setAuthToken(token: string): void {
-    // O interceptor já cuida disso, não precisamos fazer nada aqui
-    // Mantemos o método para compatibilidade
   }
 
   removeAuthToken(): void {
