@@ -103,8 +103,9 @@ class ApiService {
   }
 
   async updateProfile(data: UpdateUserData): Promise<User> {
-    const response = await this.api.patch<ApiResponse<User>>('/users/me', data); // Corrigido: PUT -> PATCH e /users/profile -> /users/me
-    return response.data.data!;
+    const response = await this.api.patch<User>('/users/me', data); // ← Mudar de ApiResponse<User> para User
+    console.log('Data -------->', data)
+    return response.data; // ← Remover o .data! extra
   }
 
   async deleteUser(id: string): Promise<void> {
