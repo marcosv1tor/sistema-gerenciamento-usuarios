@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers, useDeleteUser } from '@/hooks/useUsers';
 import { User, UserRole, TableColumn } from '@/types';
@@ -17,18 +17,28 @@ const UsersPage: React.FC = () => {
   const { user: currentUser } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   
   const pageSize = 10;
   
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+  
   const queryParams = useMemo(() => ({
     page: currentPage,
     limit: pageSize,
-    search: searchTerm || undefined,
+    search: debouncedSearchTerm || undefined,
     role: roleFilter || undefined,
-  }), [currentPage, searchTerm, roleFilter]);
+  }), [currentPage, debouncedSearchTerm, roleFilter]);
   
   const { data: usersData, isLoading, error } = useUsers(queryParams);
   const deleteUserMutation = useDeleteUser();

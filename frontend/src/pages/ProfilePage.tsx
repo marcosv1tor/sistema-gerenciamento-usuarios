@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { UpdateUserData, UserRole } from '@/types';
 import Card, { CardHeader, CardBody } from '@/components/ui/Card';
@@ -49,6 +50,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 const ProfilePage: React.FC = () => {
   const { user, updateProfile, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [showPasswords, setShowPasswords] = useState(false);
@@ -358,6 +360,7 @@ const ProfilePage: React.FC = () => {
                     });
                     setError('');
                     setSuccess('');
+                    navigate('/dashboard');
                   }}
                 >
                   Cancelar

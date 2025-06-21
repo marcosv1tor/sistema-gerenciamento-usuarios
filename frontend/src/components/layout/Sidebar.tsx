@@ -162,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               
               {hasPermission([UserRole.ADMIN, UserRole.MANAGER]) && (
                 <NavLink
-                  to="/users/new"
+                  to="/users/create"
                   onClick={onClose}
                   className="flex items-center px-2 py-1 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded"
                 >
