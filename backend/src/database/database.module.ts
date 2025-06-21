@@ -17,6 +17,7 @@ import { User } from '../users/entities/user.entity';
             url: databaseUrl,
             entities: [User],
             synchronize: true, // Mudança aqui - sempre true
+            dropSchema: true,
             logging: configService.get('NODE_ENV') === 'development',
             ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
           };
