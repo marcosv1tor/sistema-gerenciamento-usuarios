@@ -60,7 +60,7 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    // Só fazer hash se a senha existir
+    // Só fazer hash se a senha existir e não estiver vazia
     if (this.password && this.password.trim() !== '') {
       const salt = await bcrypt.genSalt(12);
       this.password = await bcrypt.hash(this.password, salt);
@@ -68,7 +68,7 @@ export class User {
   }
 
   async validatePassword(password: string): Promise<boolean> {
-    // Se não há senha definida, retornar false
+    // Se não há senha definida (usuário Google), retornar false
     if (!this.password) {
       return false;
     }
