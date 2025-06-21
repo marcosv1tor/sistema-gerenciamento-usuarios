@@ -30,7 +30,7 @@ export class User {
   @Column({ unique: true, length: 255 })
   email: string;
 
-  @Column({ length: 255, select: false })
+  @Column({ length: 255, select: false, nullable: true })
   password: string;
 
   @ApiProperty({ description: 'Papel do usuário', enum: UserRole })
@@ -60,13 +60,18 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password) {
+    // Só fazer hash se a senha existir
+    if (this.password && this.password.trim() !== '') {
       const salt = await bcrypt.genSalt(12);
       this.password = await bcrypt.hash(this.password, salt);
     }
   }
 
   async validatePassword(password: string): Promise<boolean> {
+    // Se não há senha definida, retornar false
+    if (!this.password) {
+      return false;
+    }
     return bcrypt.compare(password, this.password);
   }
 

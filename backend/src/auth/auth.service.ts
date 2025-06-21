@@ -75,11 +75,21 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
     
-    if (user && (await user.validatePassword(password))) {
-      return user;
+    if (!user) {
+      return null;
     }
     
-    return null;
+    // Se o usuário não tem senha (usuário Google), não pode fazer login tradicional
+    if (!user.password) {
+      return null;
+    }
+    
+    const isPasswordValid = await user.validatePassword(password);
+    if (!isPasswordValid) {
+      return null;
+    }
+    
+    return user;
   }
 
   async validateUserById(id: string): Promise<User | null> {
