@@ -56,14 +56,26 @@ export class UsersService {
   }
 
   async findAll(queryDto: QueryUserDto) {
-    const { role, sortBy, order, page, limit } = queryDto;
+    const { role, sortBy, order, page, limit, search } = queryDto;
     const skip = (page - 1) * limit;
-
+  
     const queryBuilder = this.userRepository.createQueryBuilder('user');
-
+  
+    // Filtro por busca (nome ou email)
+    if (search) {
+      queryBuilder.where(
+        '(user.name ILIKE :search OR user.email ILIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+  
     // Filtro por role
     if (role) {
-      queryBuilder.where('user.role = :role', { role });
+      if (search) {
+        queryBuilder.andWhere('user.role = :role', { role });
+      } else {
+        queryBuilder.where('user.role = :role', { role });
+      }
     }
 
     // Ordenação

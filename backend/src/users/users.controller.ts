@@ -49,6 +49,7 @@ export class UsersController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Listar todos os usuários (apenas admins)' })
   @ApiResponse({ status: 200, description: 'Lista de usuários retornada com sucesso' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Buscar por nome ou email' })
   @ApiQuery({ name: 'role', required: false, enum: UserRole })
   @ApiQuery({ name: 'sortBy', required: false, enum: ['name', 'createdAt', 'email'] })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })

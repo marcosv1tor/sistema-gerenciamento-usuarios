@@ -1,9 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsIn } from 'class-validator';
+import { IsOptional, IsEnum, IsIn, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { UserRole } from '../entities/user.entity';
 
 export class QueryUserDto {
+  @ApiProperty({
+    description: 'Buscar por nome ou email',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
   @ApiProperty({
     description: 'Filtrar por papel do usuário',
     enum: UserRole,
