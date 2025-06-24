@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (credentials: LoginCredentials): Promise<void> => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       console.log('=== INÍCIO DO LOGIN ==>');
       console.log('Credenciais:', credentials);
       console.log('URL da API:', process.env.REACT_APP_API_URL);
@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Config:', error.config);
       throw error;
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
