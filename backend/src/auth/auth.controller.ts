@@ -131,6 +131,10 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Token do Google inválido' })
   async googleLogin(@Body() body: { credential: string }) {
+    console.log('=== CONTROLLER GOOGLE LOGIN ===');
+    console.log('Body recebido:', body);
+    console.log('Credential no body:', body?.credential?.substring(0, 50));
+    
     return this.authService.googleLogin(body.credential);
   }
 }
