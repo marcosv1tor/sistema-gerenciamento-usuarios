@@ -20,7 +20,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    this.googleClient = new OAuth2Client(this.configService.get('GOOGLE_CLIENT_ID'));
+    // Configuração mais explícita do OAuth2Client
+    this.googleClient = new OAuth2Client({
+      clientId: this.configService.get('GOOGLE_CLIENT_ID'),
+      clientSecret: this.configService.get('GOOGLE_CLIENT_SECRET'), // Opcional mas pode ajudar
+    });
+    
+    console.log('GoogleClient inicializado com Client ID:', this.configService.get('GOOGLE_CLIENT_ID'));
   }
 
   async register(registerDto: RegisterDto) {
@@ -141,17 +147,29 @@ export class AuthService {
 
   async googleLogin(credential: string) {
     try {
+      console.log('=== VERIFICANDO TOKEN GOOGLE ===');
+      console.log('Client ID configurado:', this.configService.get('GOOGLE_CLIENT_ID'));
+      console.log('Token recebido (primeiros 50 chars):', credential?.substring(0, 50));
+      console.log('Token length:', credential?.length);
+      
+      // Verificar se o googleClient foi inicializado corretamente
+      console.log('GoogleClient inicializado:', !!this.googleClient);
+      
       // Verificar o token do Google
+      console.log('Iniciando verificação do token...');
       const ticket = await this.googleClient.verifyIdToken({
         idToken: credential,
         audience: this.configService.get('GOOGLE_CLIENT_ID'),
       });
-  
+      
+      console.log('Token verificado com sucesso!');
       const payload = ticket.getPayload();
+      
       if (!payload) {
+        console.error('Payload vazio após verificação');
         throw new UnauthorizedException('Token do Google inválido');
       }
-  
+      
       // Extrair dados do usuário
       const googleUser = {
         email: payload.email,
@@ -176,7 +194,17 @@ export class AuthService {
       };
     } catch (error) {
       console.error('Erro no login do Google:', error);
-      throw new UnauthorizedException('Falha na autenticação com Google');
+      console.error('=== ERRO DETALHADO NO GOOGLE LOGIN ===');
+      console.error('Tipo do erro:', error.constructor.name);
+      console.error('Mensagem:', error.message);
+      console.error('Stack:', error.stack);
+      
+      // Se for erro específico do Google
+      if (error.code) {
+        console.error('Código do erro Google:', error.code);
+      }
+      
+      throw new UnauthorizedException('Falha na autenticação com Google: ' + error.message);
     }
   }
 }
