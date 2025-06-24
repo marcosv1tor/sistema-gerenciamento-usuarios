@@ -35,7 +35,7 @@ export class UsersController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)  // ✅ ADMIN E MANAGER
   @ApiOperation({ summary: 'Criar novo usuário (apenas admins)' })
   @ApiResponse({ status: 201, description: 'Usuário criado com sucesso' })
   @ApiResponse({ status: 409, description: 'Email já está em uso' })
@@ -46,7 +46,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Listar todos os usuários (apenas admins)' })
   @ApiResponse({ status: 200, description: 'Lista de usuários retornada com sucesso' })
   @ApiQuery({ name: 'search', required: false, type: String, description: 'Buscar por nome ou email' })
@@ -68,21 +68,19 @@ export class UsersController {
 
   @Get('stats')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Obter estatísticas dos usuários (apenas admins)' })
-  @ApiResponse({ status: 200, description: 'Estatísticas retornadas com sucesso' })
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)  // ✅ ADMIN E MANAGER
+  @ApiOperation({ summary: 'Obter estatísticas dos usuários (admins e managers)' })
   getStats() {
     return this.usersService.getUserStats();
   }
 
   @Get('inactive')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)  // ✅ ADMIN E MANAGER
   @ApiOperation({ 
     summary: 'Listar usuários inativos (sem login há mais de 30 dias)',
     description: 'Retorna lista de usuários que não fizeram login nos últimos 30 dias'
   })
-  @ApiResponse({ status: 200, description: 'Lista de usuários inativos retornada com sucesso' })
   findInactiveUsers() {
     return this.usersService.findInactiveUsers();
   }
