@@ -71,8 +71,24 @@ const LoginPage: React.FC = () => {
         await googleLogin(credentialResponse.credential);
         navigate('/dashboard');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro no login com Google:', error);
+      
+      // Definir mensagem de erro apropriada
+      let errorMessage = 'Erro ao fazer login com Google. Tente novamente.';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Credenciais do Google inválidas ou expiradas.';
+      } else if (error.response?.status === 400) {
+        errorMessage = 'Dados do Google inválidos.';
+      } else if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK') {
+        errorMessage = 'Erro de conexão. Verifique sua internet.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      // Exibir erro no formulário
+      setError(errorMessage);
     }
   };
 
