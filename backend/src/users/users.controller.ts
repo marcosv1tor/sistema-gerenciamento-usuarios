@@ -99,9 +99,9 @@ export class UsersController {
 
   @Patch('me')
   @ApiOperation({ summary: 'Atualizar dados do usuário logado' })
-  @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso' })
-  @ApiResponse({ status: 409, description: 'Email já está em uso' })
-  updateProfile(@Body() updateUserDto: UpdateUserDto, @Request() req) {
+  @ApiResponse({ status: 200, description: 'Dados atualizados com sucesso' })
+  @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
+  updateMe(@Body() updateUserDto: UpdateUserDto, @Request() req) {
     return this.usersService.update(req.user.id, updateUserDto, req.user);
   }
 
@@ -112,7 +112,7 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
   @ApiResponse({ status: 409, description: 'Email já está em uso' })
-  update(
+  updateById(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @Request() req,

@@ -5,20 +5,22 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual } from 'typeorm'; // Adicionar MoreThanOrEqual
+import { Repository, MoreThanOrEqual } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUserDto } from './dto/query-user.dto';
+import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private userRepository: Repository<User>,
+    private activitiesService: ActivitiesService, // Adicionar
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, adminUser?: User): Promise<User> {
     // Verificar se o email já existe
     const existingUser = await this.userRepository.findOne({
       where: { email: createUserDto.email },
@@ -29,7 +31,14 @@ export class UsersService {
     }
 
     const user = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    
+    // Log da atividade de criação
+    if (adminUser) {
+      await this.activitiesService.logUserCreated(adminUser.id, savedUser.id, savedUser.name);
+    }
+    
+    return savedUser;
   }
 
   async createGoogleUser(createUserDto: CreateUserDto): Promise<User> {
@@ -142,7 +151,18 @@ export class UsersService {
     }
 
     Object.assign(user, updateUserDto);
-    return await this.userRepository.save(user);
+    const updatedUser = await this.userRepository.save({ ...user, ...updateUserDto });
+    
+    // Log da atividade
+    if (currentUser.id === id) {
+      // Usuário atualizando próprio perfil
+      await this.activitiesService.logProfileUpdated(currentUser.id, updateUserDto);
+    } else {
+      // Admin atualizando outro usuário
+      await this.activitiesService.logUserUpdated(currentUser.id, id, updatedUser.name, updateUserDto);
+    }
+    
+    return updatedUser;
   }
 
   async remove(id: string, currentUser: User): Promise<void> {
@@ -151,33 +171,22 @@ export class UsersService {
       throw new ForbiddenException('Apenas administradores podem deletar usuários');
     }
 
-    const user = await this.findOne(id);
+    const userToDelete = await this.findOne(id);
+    await this.userRepository.remove(userToDelete);
     
-    // Não permitir que admin delete a si mesmo
-    if (user.id === currentUser.id) {
-      throw new ForbiddenException('Você não pode deletar sua própria conta');
-    }
-
-    await this.userRepository.remove(user);
+    // Log da atividade
+    await this.activitiesService.logUserDeleted(currentUser.id, id, userToDelete.name);
   }
 
-  async updateLastLogin(id: string): Promise<void> {
-    await this.userRepository.update(id, {
+  async validatePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    const bcrypt = require('bcrypt');
+    return await bcrypt.compare(plainPassword, hashedPassword);
+  }
+
+  async updateLastLogin(userId: string): Promise<void> {
+    await this.userRepository.update(userId, {
       lastLoginAt: new Date(),
     });
-  }
-
-  async findInactiveUsers(): Promise<User[]> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    return await this.userRepository
-      .createQueryBuilder('user')
-      .where(
-        '(user.lastLoginAt IS NULL OR user.lastLoginAt < :thirtyDaysAgo)',
-        { thirtyDaysAgo },
-      )
-      .getMany();
   }
 
   async getUserStats() {
@@ -188,18 +197,19 @@ export class UsersService {
     const adminUsers = await this.userRepository.count({
       where: { role: UserRole.ADMIN },
     });
+    const managerUsers = await this.userRepository.count({
+      where: { role: UserRole.MANAGER },
+    });
     const regularUsers = await this.userRepository.count({
       where: { role: UserRole.USER },
     });
-    
-    // Calcular novos usuários do mês atual
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    
+
+    // Calcular usuários novos dos últimos 30 dias
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const newUsersThisMonth = await this.userRepository.count({
       where: {
-        createdAt: MoreThanOrEqual(startOfMonth),
+        createdAt: MoreThanOrEqual(thirtyDaysAgo),
       },
     });
 
@@ -208,8 +218,22 @@ export class UsersService {
       activeUsers,
       inactiveUsers: totalUsers - activeUsers,
       adminUsers,
-      regularUsers,
+      regularUsers: regularUsers + managerUsers, // Somar managers com users regulares
       newUsersThisMonth,
     };
+  }
+
+  async findInactiveUsers(): Promise<User[]> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    return await this.userRepository.find({
+      where: [
+        { lastLoginAt: null },
+        { lastLoginAt: MoreThanOrEqual(thirtyDaysAgo) },
+      ],
+      select: ['id', 'name', 'email', 'createdAt', 'lastLoginAt'],
+      order: { createdAt: 'DESC' },
+    });
   }
 }

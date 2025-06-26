@@ -82,7 +82,8 @@ describe('AuthController', () => {
 
       mockAuthService.login.mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.login(loginDto);
+      // Encontrar a linha do teste de login e ajustar:
+      const result = await controller.login(loginDto, { ip: '127.0.0.1', get: () => 'test-agent' });
 
       expect(service.login).toHaveBeenCalledWith(loginDto);
       expect(result).toEqual(mockAuthResponse);

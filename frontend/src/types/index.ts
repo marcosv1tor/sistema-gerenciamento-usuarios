@@ -156,3 +156,37 @@ export type BadgeVariant =
   | 'danger' 
   | 'warning'
   | 'info';
+
+
+export enum ActivityType {
+  LOGIN = 'login',
+  LOGOUT = 'logout',
+  USER_CREATED = 'user_created',
+  USER_UPDATED = 'user_updated',
+  USER_DELETED = 'user_deleted',
+  PROFILE_UPDATED = 'profile_updated',
+  PASSWORD_CHANGED = 'password_changed',
+}
+
+export interface Activity {
+  id: string;
+  type: ActivityType;
+  description: string;
+  details?: any;
+  ipAddress?: string;
+  userAgent?: string;
+  userId: string;
+  user: User;
+  targetUserId?: string;
+  targetUser?: User;
+  createdAt: string;
+}
+
+export interface ActivityQueryParams {
+  type?: ActivityType;
+  userId?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}

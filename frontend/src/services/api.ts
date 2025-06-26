@@ -10,6 +10,8 @@ import {
   UserStats,
   QueryParams,
   ApiResponse,
+  Activity,
+  ActivityQueryParams,
 } from '@/types';
 
 class ApiService {
@@ -150,6 +152,14 @@ class ApiService {
   async googleLogin(credential: string) {
     const response = await this.api.post('/auth/google/verify', {
       credential,
+    });
+    return response.data;
+  }
+
+  // Activities
+  async getActivities(params?: ActivityQueryParams): Promise<PaginatedResponse<Activity>> {
+    const response = await this.api.get<PaginatedResponse<Activity>>('/activities', {
+      params,
     });
     return response.data;
   }
