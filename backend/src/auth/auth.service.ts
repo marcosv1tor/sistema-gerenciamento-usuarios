@@ -10,6 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { User, UserRole } from '../users/entities/user.entity';
 import { OAuth2Client } from 'google-auth-library';
+import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly activitiesService: ActivitiesService, // Adicionar
   ) {
     // Configuração mais explícita do OAuth2Client
     this.googleClient = new OAuth2Client({
@@ -49,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, ipAddress?: string, userAgent?: string) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     
     if (!user) {
@@ -63,50 +65,9 @@ export class AuthService {
     // Atualizar último login
     await this.usersService.updateLastLogin(user.id);
 
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
+    // Log da atividade de login
+    await this.activitiesService.logLogin(user.id, ipAddress, userAgent);
 
-    const { password, ...userWithoutPassword } = user;
-
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: userWithoutPassword,
-      message: 'Login realizado com sucesso',
-    };
-  }
-
-  async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findByEmail(email);
-    
-    if (!user) {
-      return null;
-    }
-    
-    // Se o usuário não tem senha (usuário Google), não pode fazer login tradicional
-    if (!user.password) {
-      return null;
-    }
-    
-    const isPasswordValid = await user.validatePassword(password);
-    if (!isPasswordValid) {
-      return null;
-    }
-    
-    return user;
-  }
-
-  async validateUserById(id: string): Promise<User | null> {
-    try {
-      return await this.usersService.findOne(id);
-    } catch {
-      return null;
-    }
-  }
-
-  async refreshToken(user: User) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -115,37 +76,19 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
-      user,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+      },
     };
   }
 
-  async validateGoogleUser(googleUser: any) {
-    const { email, name, picture, googleId } = googleUser;
-    
-    // Verificar se o usuário já existe
-    let user = await this.usersService.findByEmail(email);
-    
-    if (!user) {
-      // Criar novo usuário se não existir
-      user = await this.usersService.createGoogleUser({
-        email,
-        name,
-        picture,
-        googleId,
-        role: UserRole.USER,
-      });
-    } else if (!user.googleId) {
-      // Vincular conta Google a usuário existente
-      user = await this.usersService.updateGoogleUser(user.id, {
-        googleId,
-        picture: picture || user.picture,
-      });
-    }
-    
-    return user;
-  }
-
-  async googleLogin(credential: string) {
+  async googleLogin(credential: string, ipAddress?: string, userAgent?: string) {
     try {
       console.log('=== VERIFICANDO TOKEN GOOGLE ===');
       console.log('Client ID configurado:', this.configService.get('GOOGLE_CLIENT_ID'));
@@ -206,5 +149,58 @@ export class AuthService {
       
       throw new UnauthorizedException('Falha na autenticação com Google: ' + error.message);
     }
+  }
+
+  async validateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.usersService.findByEmail(email);
+    if (user && await user.validatePassword(password)) {
+      return user;
+    }
+    return null;
+  }
+
+  async validateUserById(userId: string): Promise<User | null> {
+    return this.usersService.findOne(userId);
+  }
+
+  async validateGoogleUser(googleUser: any): Promise<User> {
+    let user = await this.usersService.findByEmail(googleUser.email);
+    
+    if (!user) {
+      user = await this.usersService.createGoogleUser({
+        name: googleUser.name,
+        email: googleUser.email,
+        password: '', 
+        role: UserRole.USER,
+        googleId: googleUser.googleId,
+        picture: googleUser.picture,
+      });
+    }
+
+    await this.usersService.updateLastLogin(user.id);
+    await this.activitiesService.logLogin(user.id);
+
+    return user;
+  }
+
+  async refreshToken(user: any) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+      },
+    };
   }
 }

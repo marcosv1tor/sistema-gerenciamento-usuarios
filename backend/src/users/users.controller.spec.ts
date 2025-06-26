@@ -141,7 +141,9 @@ describe('UsersController', () => {
       const updatedUser = { ...mockUser, name: 'Updated Name' };
       mockUsersService.update.mockResolvedValue(updatedUser);
 
-      const result = await controller.updateProfile(updateUserDto, mockUser);
+      // Corrigir para usar updateMe e passar objeto req:
+      const mockReq = { user: mockUser };
+      const result = await controller.updateMe(updateUserDto, mockReq);
 
       expect(service.update).toHaveBeenCalledWith(
         mockUser.id,
@@ -161,7 +163,9 @@ describe('UsersController', () => {
       const updatedUser = { ...mockUser, name: 'Updated Name' };
       mockUsersService.update.mockResolvedValue(updatedUser);
 
-      const result = await controller.update('1', updateUserDto, mockAdmin);
+      // Corrigir para usar objeto req com user:
+      const mockReq = { user: mockAdmin };
+      const result = await controller.updateById('1', updateUserDto, mockReq);
 
       expect(service.update).toHaveBeenCalledWith('1', updateUserDto, mockAdmin);
       expect(result).toEqual(updatedUser);

@@ -48,31 +48,28 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'Fazer login' })
-  @ApiResponse({
-    status: 200,
-    description: 'Login realizado com sucesso',
-    schema: {
-      example: {
-        access_token: 'jwt_token_here',
-        user: {
-          id: 'uuid',
-          name: 'João Silva',
-          email: 'joao@exemplo.com',
-          role: 'user',
-          lastLoginAt: '2024-01-01T00:00:00.000Z',
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-        },
-        message: 'Login realizado com sucesso',
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Login de usuário' })
+  @ApiResponse({ status: 200, description: 'Login realizado com sucesso' })
   @ApiResponse({ status: 401, description: 'Credenciais inválidas' })
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(@Body() loginDto: LoginDto, @Request() req?) {
+    const ipAddress = req?.ip || req?.connection?.remoteAddress;
+    const userAgent = req?.get('User-Agent');
+    return this.authService.login(loginDto, ipAddress, userAgent);
   }
 
+  @Post('google/verify')
+  @ApiOperation({ summary: 'Login com Google' })
+  @ApiResponse({ status: 200, description: 'Login realizado com sucesso' })
+  @ApiResponse({ status: 401, description: 'Token inválido' })
+  async googleLogin(@Body() body: { credential: string }, @Request() req) {
+    console.log('=== CONTROLLER GOOGLE LOGIN ===');
+    console.log('Body recebido:', body);
+    console.log('Credential no body:', body?.credential?.substring(0, 50));
+    
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.get('User-Agent');
+    return this.authService.googleLogin(body.credential, ipAddress, userAgent);
+  }
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -108,33 +105,5 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Token inválido ou expirado' })
   refreshToken(@Request() req) {
     return this.authService.refreshToken(req.user);
-  }
-
-  @Post('google/verify')
-  @ApiOperation({ summary: 'Verificar token do Google e fazer login' })
-  @ApiResponse({
-    status: 200,
-    description: 'Login com Google realizado com sucesso',
-    schema: {
-      example: {
-        access_token: 'jwt_token_here',
-        user: {
-          id: 'uuid',
-          name: 'João Silva',
-          email: 'joao@exemplo.com',
-          role: 'user',
-          googleId: 'google_user_id',
-          picture: 'https://...',
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Token do Google inválido' })
-  async googleLogin(@Body() body: { credential: string }) {
-    console.log('=== CONTROLLER GOOGLE LOGIN ===');
-    console.log('Body recebido:', body);
-    console.log('Credential no body:', body?.credential?.substring(0, 50));
-    
-    return this.authService.googleLogin(body.credential);
   }
 }

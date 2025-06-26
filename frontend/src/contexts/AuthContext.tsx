@@ -111,18 +111,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = (): void => {
-    setUser(null);
-    setToken(null);
-    
-    // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    // Remove auth token from API service
-    apiService.removeAuthToken();
-    
-    toast.success('Logout realizado com sucesso!');
+  const logout = async (): Promise<void> => {
+    try {
+      // Opcional: chamar endpoint de logout no backend para registrar a atividade
+      // await apiService.logout();
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      
+      // Clear localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Remove auth token from API service
+      apiService.removeAuthToken();
+      
+      toast.success('Logout realizado com sucesso!');
+    }
   };
 
   const updateProfile = async (data: UpdateUserData): Promise<void> => {
