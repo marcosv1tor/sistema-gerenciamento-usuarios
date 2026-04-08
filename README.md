@@ -2,7 +2,7 @@
 
 Sistema completo de gerenciamento de usuários desenvolvido com **NestJS** (backend) e **ReactJS** (frontend), ambos utilizando **TypeScript**.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 ### Backend
 - **NestJS** com TypeScript
@@ -20,26 +20,26 @@ Sistema completo de gerenciamento de usuários desenvolvido com **NestJS** (back
 - **TailwindCSS** para estilização
 - **Axios** para requisições HTTP
 
-## 📋 Funcionalidades
+## Funcionalidades
 
 ### Backend
-- ✅ Autenticação JWT com rotas `/auth/register` e `/auth/login`
-- ✅ CRUD completo de usuários com controle de permissões
-- ✅ Filtros por role e ordenação por nome/data
-- ✅ Endpoint para usuários inativos (30+ dias sem login)
-- ✅ Testes unitários e de integração
-- ✅ Documentação Swagger
-- ✅ Proteção contra SQL Injection e XSS
+- Autenticação JWT com rotas `/auth/register` e `/auth/login`
+- CRUD completo de usuários com controle de permissões
+- Filtros por role e ordenação por nome/data
+- Endpoint para usuários inativos (30+ dias sem login)
+- Testes unitários e de integração
+- Documentação Swagger
+- Proteção contra SQL Injection e XSS
 
 ### Frontend
-- ✅ Tela de login responsiva
-- ✅ Tela de cadastro de usuários
-- ✅ Dashboard para administradores
-- ✅ Perfil do usuário para usuários regulares
-- ✅ Interface responsiva (mobile e desktop)
-- ✅ Filtros e ordenação na listagem
+- Tela de login responsiva
+- Tela de cadastro de usuários
+- Dashboard para administradores
+- Perfil do usuário para usuários regulares
+- Interface responsiva (mobile e desktop)
+- Filtros e ordenação na listagem
 
-## 🛠️ Configuração e Instalação
+## Configuração e Instalação
 
 ### Pré-requisitos
 - Node.js (versão 18 ou superior)
@@ -108,14 +108,14 @@ npm run backend:dev
 npm run frontend:dev
 ```
 
-## 📚 Documentação da API
+## Documentação da API
 
 Após iniciar o backend, acesse a documentação Swagger em:
 ```
 http://localhost:3001/api/docs
 ```
 
-## 🧪 Executar Testes
+## Executar Testes
 
 ```bash
 # Testes do backend
@@ -125,7 +125,7 @@ npm run backend:test
 cd backend && npm run test:cov
 ```
 
-## 🔐 Usuários Padrão
+## Usuários Padrão
 
 Após executar as migrações, os seguintes usuários estarão disponíveis:
 
@@ -139,7 +139,7 @@ Após executar as migrações, os seguintes usuários estarão disponíveis:
 - **Senha**: user123
 - **Role**: user
 
-## 🏗️ Arquitetura do Projeto
+## Arquitetura do Projeto
 
 ```
 conectar-user-management/
@@ -162,7 +162,7 @@ conectar-user-management/
 └── README.md
 ```
 
-## 🔒 Segurança
+## Segurança
 
 - **Autenticação JWT** com tokens seguros
 - **Criptografia bcrypt** para senhas
@@ -171,13 +171,13 @@ conectar-user-management/
 - **CORS** configurado adequadamente
 - **Sanitização** contra XSS e SQL Injection
 
-## 📱 URLs da Aplicação
+## URLs da Aplicação
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:3001
 - **Documentação Swagger**: http://localhost:3001/api/docs
 
-## 🤝 Contribuição
+## Contribuição
 
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
@@ -185,13 +185,9 @@ conectar-user-management/
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## 📄 Licença
+## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 👥 Equipe
-
-Desenvolvido para a **Conéctar** como parte do processo seletivo.
 
 ---
 
